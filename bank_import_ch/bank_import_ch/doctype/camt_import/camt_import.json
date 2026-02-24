@@ -1,0 +1,242 @@
+{
+	"actions": [],
+	"autoname": "format:CAMT-{####}",
+	"creation": "2026-02-23 00:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"file_section",
+		"camt_file",
+		"file_name",
+		"camt_version",
+		"column_break_1",
+		"import_date",
+		"imported_by",
+		"status",
+		"account_section",
+		"account_iban",
+		"account_owner",
+		"column_break_2",
+		"account_currency",
+		"bank_account",
+		"statement_section",
+		"statement_from_date",
+		"statement_to_date",
+		"column_break_3",
+		"opening_balance",
+		"closing_balance",
+		"summary_section",
+		"total_transactions",
+		"total_credits",
+		"total_debits",
+		"column_break_4",
+		"confirmed_transactions",
+		"pending_transactions",
+		"message_id"
+	],
+	"fields": [
+		{
+			"fieldname": "file_section",
+			"fieldtype": "Section Break",
+			"label": "Datei"
+		},
+		{
+			"fieldname": "camt_file",
+			"fieldtype": "Attach",
+			"label": "CAMT.053 Datei",
+			"reqd": 1
+		},
+		{
+			"fieldname": "file_name",
+			"fieldtype": "Data",
+			"label": "Dateiname",
+			"read_only": 1
+		},
+		{
+			"fieldname": "camt_version",
+			"fieldtype": "Data",
+			"label": "CAMT Version",
+			"read_only": 1
+		},
+		{
+			"fieldname": "column_break_1",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "import_date",
+			"fieldtype": "Datetime",
+			"label": "Importdatum",
+			"read_only": 1
+		},
+		{
+			"fieldname": "imported_by",
+			"fieldtype": "Link",
+			"label": "Importiert von",
+			"options": "User",
+			"read_only": 1
+		},
+		{
+			"fieldname": "status",
+			"fieldtype": "Select",
+			"label": "Status",
+			"options": "\nEntwurf\nImportiert\nTeilweise bestätigt\nVollständig bestätigt",
+			"default": "Entwurf",
+			"read_only": 1
+		},
+		{
+			"fieldname": "account_section",
+			"fieldtype": "Section Break",
+			"label": "Kontoinformationen"
+		},
+		{
+			"fieldname": "account_iban",
+			"fieldtype": "Data",
+			"label": "IBAN",
+			"read_only": 1
+		},
+		{
+			"fieldname": "account_owner",
+			"fieldtype": "Data",
+			"label": "Kontoinhaber",
+			"read_only": 1
+		},
+		{
+			"fieldname": "column_break_2",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "account_currency",
+			"fieldtype": "Link",
+			"label": "Währung",
+			"options": "Currency",
+			"read_only": 1
+		},
+		{
+			"fieldname": "bank_account",
+			"fieldtype": "Link",
+			"label": "Bankkonto (ERPNext)",
+			"options": "Bank Account"
+		},
+		{
+			"fieldname": "statement_section",
+			"fieldtype": "Section Break",
+			"label": "Auszugsinformationen"
+		},
+		{
+			"fieldname": "statement_from_date",
+			"fieldtype": "Date",
+			"label": "Von Datum",
+			"read_only": 1
+		},
+		{
+			"fieldname": "statement_to_date",
+			"fieldtype": "Date",
+			"label": "Bis Datum",
+			"read_only": 1
+		},
+		{
+			"fieldname": "column_break_3",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "opening_balance",
+			"fieldtype": "Currency",
+			"label": "Eröffnungssaldo",
+			"read_only": 1
+		},
+		{
+			"fieldname": "closing_balance",
+			"fieldtype": "Currency",
+			"label": "Abschlusssaldo",
+			"read_only": 1
+		},
+		{
+			"fieldname": "summary_section",
+			"fieldtype": "Section Break",
+			"label": "Zusammenfassung"
+		},
+		{
+			"fieldname": "total_transactions",
+			"fieldtype": "Int",
+			"label": "Total Transaktionen",
+			"read_only": 1
+		},
+		{
+			"fieldname": "total_credits",
+			"fieldtype": "Currency",
+			"label": "Total Eingänge",
+			"read_only": 1
+		},
+		{
+			"fieldname": "total_debits",
+			"fieldtype": "Currency",
+			"label": "Total Ausgänge",
+			"read_only": 1
+		},
+		{
+			"fieldname": "column_break_4",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "confirmed_transactions",
+			"fieldtype": "Int",
+			"label": "Bestätigte Transaktionen",
+			"read_only": 1,
+			"default": "0"
+		},
+		{
+			"fieldname": "pending_transactions",
+			"fieldtype": "Int",
+			"label": "Offene Transaktionen",
+			"read_only": 1,
+			"default": "0"
+		},
+		{
+			"fieldname": "message_id",
+			"fieldtype": "Data",
+			"label": "Message ID",
+			"read_only": 1,
+			"hidden": 1
+		}
+	],
+	"links": [
+		{
+			"link_doctype": "CAMT Bank Transaction",
+			"link_fieldname": "camt_import"
+		}
+	],
+	"modified": "2026-02-23 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Bank Import CH",
+	"name": "CAMT Import",
+	"naming_rule": "Expression",
+	"owner": "Administrator",
+	"permissions": [
+		{
+			"create": 1,
+			"delete": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Accounts Manager",
+			"share": 1,
+			"write": 1
+		},
+		{
+			"create": 1,
+			"email": 1,
+			"export": 1,
+			"print": 1,
+			"read": 1,
+			"report": 1,
+			"role": "Accounts User",
+			"share": 1,
+			"write": 1
+		}
+	],
+	"sort_field": "creation",
+	"sort_order": "DESC",
+	"track_changes": 1
+}

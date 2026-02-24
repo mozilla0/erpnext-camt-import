@@ -1,0 +1,17 @@
+[project]
+name = "bank_import_ch"
+authors = [
+    { name = "Your Name", email = "your@email.com" }
+]
+description = "CAMT.053 Bank Transaction Import for ERPNext (Swiss Edition)"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0"
+erpnext = ">=16.0.0"
