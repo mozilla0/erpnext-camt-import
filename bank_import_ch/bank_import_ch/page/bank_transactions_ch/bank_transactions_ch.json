@@ -1,0 +1,25 @@
+{
+	"content": null,
+	"creation": "2026-02-23 00:00:00.000000",
+	"docstatus": 0,
+	"doctype": "Page",
+	"icon": "fa fa-credit-card",
+	"idx": 0,
+	"modified": "2026-02-23 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "Bank Import CH",
+	"name": "bank-transactions-ch",
+	"owner": "Administrator",
+	"page_name": "bank-transactions-ch",
+	"roles": [
+		{
+			"role": "Accounts Manager"
+		},
+		{
+			"role": "Accounts User"
+		}
+	],
+	"standard": "Yes",
+	"system_page": 0,
+	"title": "Banktransaktionen CH"
+}
