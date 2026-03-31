@@ -44,7 +44,18 @@
 		"confirmation_section",
 		"confirmed_by",
 		"confirmed_at",
-		"confirmation_note"
+		"confirmation_note",
+		"matching_section",
+		"matched_invoice_type",
+		"matched_invoice",
+		"matched_party_type",
+		"matched_party",
+		"column_break_matching",
+		"match_status",
+		"match_method",
+		"accounting_section",
+		"payment_entry",
+		"journal_entry"
 	],
 	"fields": [
 		{
@@ -292,6 +303,77 @@
 			"fieldname": "confirmation_note",
 			"fieldtype": "Small Text",
 			"label": "Notiz"
+		},
+		{
+			"fieldname": "matching_section",
+			"fieldtype": "Section Break",
+			"label": "Rechnungszuordnung"
+		},
+		{
+			"fieldname": "matched_invoice_type",
+			"fieldtype": "Select",
+			"label": "Rechnungsart",
+			"options": "\nSales Invoice\nPurchase Invoice"
+		},
+		{
+			"fieldname": "matched_invoice",
+			"fieldtype": "Dynamic Link",
+			"label": "Zugeordnete Rechnung",
+			"options": "matched_invoice_type"
+		},
+		{
+			"fieldname": "matched_party_type",
+			"fieldtype": "Select",
+			"label": "Partei-Typ",
+			"options": "\nCustomer\nSupplier",
+			"read_only": 1
+		},
+		{
+			"fieldname": "matched_party",
+			"fieldtype": "Dynamic Link",
+			"label": "Partei",
+			"options": "matched_party_type",
+			"read_only": 1
+		},
+		{
+			"fieldname": "column_break_matching",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "match_status",
+			"fieldtype": "Select",
+			"label": "Zuordnungsstatus",
+			"options": "\nOffen\nZugeordnet\nGebucht",
+			"default": "Offen",
+			"read_only": 1,
+			"in_standard_filter": 1
+		},
+		{
+			"fieldname": "match_method",
+			"fieldtype": "Select",
+			"label": "Zuordnungsmethode",
+			"options": "\nQRR-Referenz\nManuell",
+			"read_only": 1
+		},
+		{
+			"fieldname": "accounting_section",
+			"fieldtype": "Section Break",
+			"label": "Buchungen",
+			"collapsible": 1
+		},
+		{
+			"fieldname": "payment_entry",
+			"fieldtype": "Link",
+			"label": "Payment Entry",
+			"options": "Payment Entry",
+			"read_only": 1
+		},
+		{
+			"fieldname": "journal_entry",
+			"fieldtype": "Link",
+			"label": "Journal Entry",
+			"options": "Journal Entry",
+			"read_only": 1
 		}
 	],
 	"index_web_pages_for_search": 0,

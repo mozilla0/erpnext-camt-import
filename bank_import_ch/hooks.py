@@ -20,11 +20,28 @@ add_to_apps_screen = [
 	}
 ]
 
-# Fixtures
-# fixtures = []
+# Fixtures – Custom Fields auf Standard-DocTypes
+fixtures = [
+	{
+		"dt": "Custom Field",
+		"filters": [["name", "in", [
+			"Journal Entry-camt_bank_transaction",
+			"Payment Entry-camt_bank_transaction",
+		]]],
+	},
+]
 
 # DocType Registrierung
-# doc_events = {}
+doc_events = {
+	"Journal Entry": {
+		"after_insert": "bank_import_ch.bank_import_ch.api.link_journal_entry_to_camt",
+		"on_submit": "bank_import_ch.bank_import_ch.api.on_journal_entry_submit",
+	},
+	"Payment Entry": {
+		"after_insert": "bank_import_ch.bank_import_ch.api.link_payment_entry_to_camt",
+		"on_submit": "bank_import_ch.bank_import_ch.api.on_payment_entry_submit",
+	},
+}
 
 # Website
 website_route_rules = [

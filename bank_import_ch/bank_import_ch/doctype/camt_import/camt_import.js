@@ -15,6 +15,29 @@ frappe.ui.form.on("CAMT Import", {
 			);
 
 			frm.add_custom_button(
+				__("QRR Auto-Matching"),
+				() => {
+					frappe.call({
+						method: "bank_import_ch.bank_import_ch.api.match_all_by_qrr",
+						args: { camt_import: frm.doc.name },
+						freeze: true,
+						freeze_message: __("QRR-Referenzen werden abgeglichen..."),
+						callback(r) {
+							if (r.message) {
+								frappe.msgprint({
+									title: __("Auto-Matching Ergebnis"),
+									indicator: r.message.matched > 0 ? "green" : "orange",
+									message: r.message.message,
+								});
+								frm.reload_doc();
+							}
+						},
+					});
+				},
+				__("Aktionen")
+			);
+
+			frm.add_custom_button(
 				__("Alle bestätigen"),
 				() => {
 					frappe.confirm(
