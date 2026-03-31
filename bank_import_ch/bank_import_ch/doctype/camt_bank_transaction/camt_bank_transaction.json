@@ -7,6 +7,7 @@
 	"field_order": [
 		"main_section",
 		"camt_import",
+		"transaction_id",
 		"status",
 		"transaction_type",
 		"column_break_main",
@@ -58,6 +59,15 @@
 			"options": "CAMT Import",
 			"reqd": 1,
 			"read_only": 1
+		},
+		{
+			"fieldname": "transaction_id",
+			"fieldtype": "Data",
+			"label": "Transaktions-ID",
+			"unique": 1,
+			"read_only": 1,
+			"in_list_view": 0,
+			"description": "Eindeutige ID (IBAN + Bankreferenz). Verhindert doppelte Imports."
 		},
 		{
 			"fieldname": "status",

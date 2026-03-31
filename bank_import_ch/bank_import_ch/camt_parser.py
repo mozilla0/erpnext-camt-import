@@ -75,6 +75,31 @@ class CamtTransaction:
 	creditor_reference: str = ""
 
 	@property
+	def transaction_id(self) -> str:
+		"""Eindeutige Transaktions-ID.
+
+		Zusammengesetzt aus Konto-IBAN und Account Servicer Reference.
+		Die AcctSvcrRef ist die von der Bank vergebene, eindeutige Referenz
+		pro Buchungsposten und daher der beste Kandidat für die Deduplizierung.
+
+		Fallback: Kombination aus IBAN + Buchungsdatum + Betrag + Gegenpartei-IBAN,
+		falls keine AcctSvcrRef vorhanden ist.
+		"""
+		if self.account_service_reference:
+			return f"{self.account_iban}:{self.account_service_reference}"
+
+		# Fallback für Banken ohne AcctSvcrRef
+		parts = [
+			self.account_iban or "NOIBAN",
+			str(self.booking_date or "NODATE"),
+			str(self.amount),
+			self.credit_debit or "NODIR",
+			self.counterparty_iban or self.counterparty_name or "NOPARTY",
+			self.end_to_end_id or self.payment_info_id or "NOREF",
+		]
+		return ":".join(parts)
+
+	@property
 	def is_credit(self) -> bool:
 		return self.credit_debit == "CRDT"
 

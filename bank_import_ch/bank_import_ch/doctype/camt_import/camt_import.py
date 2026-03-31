@@ -62,7 +62,11 @@ class CAMTImport(Document):
 			self.create_transactions()
 
 	def create_transactions(self):
-		"""Einzelne CAMT Bank Transaction Datensätze erstellen."""
+		"""Einzelne CAMT Bank Transaction Datensätze erstellen.
+
+		Nutzt die transaction_id (IBAN + AcctSvcRef) für globale Duplikatprüfung
+		über alle Imports hinweg. Gibt Feedback über importierte/übersprungene Einträge.
+		"""
 		file_doc = frappe.get_doc("File", {"file_url": self.camt_file})
 		file_content = file_doc.get_content()
 
@@ -71,24 +75,26 @@ class CAMTImport(Document):
 
 		camt_file = parse_camt053(file_content)
 
+		created = 0
+		skipped_duplicate = 0
+		skipped_no_id = 0
+
 		for txn in camt_file.all_transactions:
-			# Duplikatprüfung
+			txn_id = txn.transaction_id
+
+			# Globale Duplikatprüfung über alle Imports hinweg
 			existing = frappe.db.exists(
 				"CAMT Bank Transaction",
-				{
-					"camt_import": self.name,
-					"entry_reference": txn.entry_reference or "",
-					"account_service_reference": txn.account_service_reference or "",
-					"amount": float(txn.amount),
-					"booking_date": txn.booking_date,
-				},
+				{"transaction_id": txn_id},
 			)
 
 			if existing:
+				skipped_duplicate += 1
 				continue
 
 			doc = frappe.new_doc("CAMT Bank Transaction")
 			doc.camt_import = self.name
+			doc.transaction_id = txn_id
 			doc.entry_reference = txn.entry_reference
 			doc.account_service_reference = txn.account_service_reference
 			doc.end_to_end_id = txn.end_to_end_id
@@ -114,8 +120,36 @@ class CAMTImport(Document):
 			doc.bank_account = self.bank_account
 			doc.status = "Offen"
 			doc.insert(ignore_permissions=True)
+			created += 1
 
 		frappe.db.commit()
+
+		# Zusammenfassung aktualisieren
+		self.reload()
+		self.update_summary()
+
+		# Benutzer-Feedback
+		msg_parts = []
+		if created:
+			msg_parts.append(f"<b>{created}</b> Transaktionen importiert")
+		if skipped_duplicate:
+			msg_parts.append(f"<b>{skipped_duplicate}</b> Duplikate übersprungen")
+
+		if msg_parts:
+			indicator = "green" if not skipped_duplicate else "orange"
+			frappe.msgprint(
+				"<br>".join(msg_parts),
+				title="Import abgeschlossen",
+				indicator=indicator,
+			)
+		elif not created and not skipped_duplicate:
+			frappe.msgprint(
+				"Keine Transaktionen in der Datei gefunden.",
+				title="Import",
+				indicator="red",
+			)
+
+		return {"created": created, "skipped": skipped_duplicate}
 
 	def update_summary(self):
 		"""Zusammenfassung aktualisieren."""
