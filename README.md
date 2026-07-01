@@ -4,6 +4,10 @@ CAMT.053 Banktransaktions-Import für ERPNext v16 – optimiert für Schweizer B
 
 ---
 
+<img width="2552" height="1088" alt="Bildschirmfoto_20260701_135622" src="https://github.com/user-attachments/assets/de2064b2-c0fa-476c-a81d-a760d1b9b731" />
+<img width="2552" height="617" alt="Bildschirmfoto_20260701_135554" src="https://github.com/user-attachments/assets/c6718a92-0f33-4e3b-a4d2-7b106d885f6e" />
+
+
 ## 🇨🇭 Deutsch
 
 ### Funktionen
