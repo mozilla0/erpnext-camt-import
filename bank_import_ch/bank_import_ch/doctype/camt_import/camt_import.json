@@ -115,7 +115,9 @@
 			"fieldname": "bank_account",
 			"fieldtype": "Link",
 			"label": "Bankkonto (ERPNext)",
-			"options": "Bank Account"
+			"options": "Bank Account",
+			"reqd": 1,
+			"description": "Wird beim Import gegen die IBAN in der CAMT-Datei validiert."
 		},
 		{
 			"fieldname": "statement_section",

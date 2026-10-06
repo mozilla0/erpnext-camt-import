@@ -102,7 +102,7 @@ frappe.ui.form.on("CAMT Bank Transaction", {
 		// Journal Entry (immer verfügbar wenn noch nicht gebucht)
 		if (!frm.doc.journal_entry && match_status !== "Gebucht") {
 			frm.add_custom_button(
-				__("Journal Entry erstellen"),
+				__("Buchungssatz erstellen"),
 				() => camt_create_journal_entry(frm),
 				__("Buchen")
 			);

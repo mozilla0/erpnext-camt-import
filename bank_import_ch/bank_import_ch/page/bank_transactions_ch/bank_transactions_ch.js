@@ -20,12 +20,14 @@ frappe.pages["bank-transactions-ch"].on_page_load = function (wrapper) {
 		filters: {
 			status: "",
 			camt_import: "",
+			bank_account: "",
 			credit_debit: "",
 			from_date: "",
 			to_date: "",
 			search: "",
 			hide_confirmed: true,
 		},
+		bank_accounts: [],
 		selected: new Set(),
 		loading: false,
 	};
@@ -36,8 +38,85 @@ frappe.pages["bank-transactions-ch"].on_page_load = function (wrapper) {
 	}, "fa fa-upload");
 
 	page.set_secondary_action(__("Aktualisieren"), () => {
+		load_bank_accounts();
 		load_transactions();
 	}, "fa fa-refresh");
+
+	// === BANK ACCOUNT TABS ===
+	const $account_tabs = $(`
+		<div class="bank-account-tabs">
+			<ul class="nav nav-tabs" role="tablist">
+				<li class="nav-item">
+					<a class="nav-link active" data-account="" href="#" role="tab">
+						${__("Alle Konten")}
+					</a>
+				</li>
+			</ul>
+		</div>
+	`).appendTo(page.main);
+
+	$account_tabs.on("click", ".nav-link", function (e) {
+		e.preventDefault();
+		$account_tabs.find(".nav-link").removeClass("active");
+		$(this).addClass("active");
+		state.filters.bank_account = $(this).data("account") || "";
+		state.start = 0;
+		load_transactions();
+	});
+
+	function load_bank_accounts() {
+		frappe.call({
+			method: "bank_import_ch.bank_import_ch.api.get_bank_accounts_with_transactions",
+			async: true,
+			callback(r) {
+				if (!r.message) return;
+				state.bank_accounts = r.message;
+				render_account_tabs();
+			},
+		});
+	}
+
+	function render_account_tabs() {
+		const $ul = $account_tabs.find("ul");
+		// Bestehendes "Alle" behalten, Rest entfernen
+		$ul.find("li:not(:first-child)").remove();
+
+		// Open-Count für "Alle" Tab berechnen
+		let total_open = 0;
+		state.bank_accounts.forEach((acc) => {
+			total_open += (acc.open_count || 0);
+		});
+		const $all_tab = $ul.find("li:first-child .nav-link");
+		$all_tab.html(
+			__("Alle Konten") +
+			(total_open > 0 ? ` <span class="badge badge-warning">${total_open}</span>` : "")
+		);
+
+		state.bank_accounts.forEach((acc) => {
+			const label = acc.account_name || acc.bank_account;
+			const badge_html = acc.open_count > 0
+				? ` <span class="badge badge-warning">${acc.open_count}</span>`
+				: "";
+			const is_active = state.filters.bank_account === acc.bank_account ? " active" : "";
+			$ul.append(`
+				<li class="nav-item">
+					<a class="nav-link${is_active}" data-account="${acc.bank_account}"
+					   href="#" role="tab" title="IBAN: ${acc.iban || ""}">
+						${label}${badge_html}
+					</a>
+				</li>
+			`);
+		});
+
+		// Aktiven Tab markieren falls schon gesetzt
+		if (state.filters.bank_account) {
+			$ul.find(".nav-link").removeClass("active");
+			$ul.find(`[data-account="${state.filters.bank_account}"]`).addClass("active");
+		}
+	}
+
+	// Initial: Bankkonten laden
+	load_bank_accounts();
 
 	// === FILTER BAR ===
 	const $filter_bar = $(`
@@ -534,6 +613,7 @@ frappe.pages["bank-transactions-ch"].on_page_load = function (wrapper) {
 				page_length: state.page_length,
 				status: state.filters.status,
 				camt_import: state.filters.camt_import,
+				bank_account: state.filters.bank_account,
 				credit_debit: state.filters.credit_debit,
 				from_date: state.filters.from_date,
 				to_date: state.filters.to_date,

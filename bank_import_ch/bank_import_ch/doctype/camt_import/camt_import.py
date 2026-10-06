@@ -16,6 +16,23 @@ class CAMTImport(Document):
 		if self.camt_file and not self.message_id:
 			self.process_camt_file()
 
+	def validate(self):
+		"""Validierung: IBAN im CAMT-File muss zum gewählten Bankkonto passen."""
+		if self.bank_account and self.account_iban:
+			bank_iban = frappe.db.get_value("Bank Account", self.bank_account, "iban")
+			if bank_iban:
+				# Normalisieren: Leerzeichen entfernen und Grossbuchstaben
+				iban_file = (self.account_iban or "").replace(" ", "").upper()
+				iban_bank = (bank_iban or "").replace(" ", "").upper()
+				if iban_file and iban_bank and iban_file != iban_bank:
+					frappe.throw(
+						frappe._("Die IBAN in der CAMT-Datei ({0}) stimmt nicht mit dem "
+						"gewählten Bankkonto ({1}, IBAN: {2}) überein.").format(
+							iban_file, self.bank_account, iban_bank
+						),
+						title=frappe._("IBAN-Validierung fehlgeschlagen")
+					)
+
 	def process_camt_file(self):
 		"""CAMT.053-Datei lesen und verarbeiten."""
 		file_doc = frappe.get_doc("File", {"file_url": self.camt_file})

@@ -631,6 +631,31 @@ def on_payment_entry_submit(doc, method=None):
 
 
 @frappe.whitelist()
+def get_bank_accounts_with_transactions():
+	"""Gibt alle Bankkonten zurück, die CAMT-Transaktionen haben.
+
+	Für die Tab-Navigation auf der Übersichtsseite.
+	"""
+	accounts = frappe.db.sql("""
+		SELECT DISTINCT
+			cbt.bank_account,
+			ba.account_name,
+			ba.bank,
+			ba.iban,
+			ba.account as gl_account,
+			COUNT(cbt.name) as txn_count,
+			SUM(CASE WHEN cbt.status = 'Offen' THEN 1 ELSE 0 END) as open_count
+		FROM `tabCAMT Bank Transaction` cbt
+		LEFT JOIN `tabBank Account` ba ON ba.name = cbt.bank_account
+		WHERE cbt.bank_account IS NOT NULL AND cbt.bank_account != ''
+		GROUP BY cbt.bank_account
+		ORDER BY ba.account_name
+	""", as_dict=True)
+
+	return accounts
+
+
+@frappe.whitelist()
 def get_accounts_for_journal(company=None):
 	"""Kontenliste für Journal Entry Dialog laden."""
 	if not company:

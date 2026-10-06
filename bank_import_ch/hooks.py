@@ -1,8 +1,8 @@
 app_name = "bank_import_ch"
 app_title = "Bank Import CH"
-app_publisher = "Joker IT AG"
+app_publisher = "Your Company"
 app_description = "CAMT.053 Bank Transaction Import für ERPNext (Swiss Edition)"
-app_email = "matthias@joker-it.ch"
+app_email = "your@email.com"
 app_license = "MIT"
 
 # App-Icon und Farbe

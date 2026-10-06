@@ -4,6 +4,63 @@
 	padding: 0 15px;
 }
 
+/* === BANK ACCOUNT TABS === */
+.bank-account-tabs {
+	margin-bottom: 12px;
+}
+
+.bank-account-tabs .nav-tabs {
+	border-bottom: 2px solid var(--border-color);
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.bank-account-tabs .nav-item {
+	white-space: nowrap;
+}
+
+.bank-account-tabs .nav-link {
+	color: var(--text-muted);
+	border: none;
+	border-bottom: 2px solid transparent;
+	padding: 8px 16px;
+	font-size: var(--text-sm);
+	font-weight: 500;
+	margin-bottom: -2px;
+	transition: all 0.15s ease;
+}
+
+.bank-account-tabs .nav-link:hover {
+	color: var(--text-color);
+	border-bottom-color: var(--gray-300);
+}
+
+.bank-account-tabs .nav-link.active {
+	color: var(--primary);
+	border-bottom-color: var(--primary);
+	background: transparent;
+}
+
+.bank-account-tabs .badge {
+	font-size: 10px;
+	padding: 2px 6px;
+	border-radius: 10px;
+	margin-left: 4px;
+	vertical-align: middle;
+}
+
+.bank-account-tabs .badge-warning {
+	background: var(--yellow-100, #fff3cd);
+	color: var(--yellow-700, #856404);
+}
+
+/* Dark mode */
+[data-theme="dark"] .bank-account-tabs .badge-warning {
+	background: var(--yellow-900, #3d3200);
+	color: var(--yellow-300, #ffc107);
+}
+
 /* === FILTER BAR === */
 .bank-txn-filters {
 	background: var(--card-bg);
