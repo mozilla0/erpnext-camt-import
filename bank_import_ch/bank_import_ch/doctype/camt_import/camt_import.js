@@ -2,6 +2,42 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("CAMT Import", {
+	camt_file(frm) {
+		// Sobald eine Datei hochgeladen wird: IBAN extrahieren und Bankkonto vorbelegen
+		if (frm.doc.camt_file && !frm.doc.message_id) {
+			frappe.call({
+				method: "bank_import_ch.bank_import_ch.api.preview_camt_file",
+				args: { file_url: frm.doc.camt_file },
+				callback(r) {
+					if (!r.message) return;
+					let data = r.message;
+
+					if (data.account_iban) {
+						frm.set_value("account_iban", data.account_iban);
+					}
+					if (data.account_owner) {
+						frm.set_value("account_owner", data.account_owner);
+					}
+					if (data.account_currency) {
+						frm.set_value("account_currency", data.account_currency);
+					}
+					if (data.bank_account) {
+						frm.set_value("bank_account", data.bank_account);
+						frappe.show_alert({
+							message: __("Bankkonto automatisch erkannt: {0}").replace("{0}", data.bank_account),
+							indicator: "green",
+						});
+					} else if (data.account_iban) {
+						frappe.show_alert({
+							message: __("IBAN {0} erkannt – kein passendes Bankkonto gefunden. Bitte manuell auswählen.").replace("{0}", data.account_iban),
+							indicator: "orange",
+						});
+					}
+				},
+			});
+		}
+	},
+
 	refresh(frm) {
 		if (frm.doc.status === "Importiert" || frm.doc.status === "Teilweise bestätigt") {
 			frm.add_custom_button(

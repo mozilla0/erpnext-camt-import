@@ -60,6 +60,24 @@ class CAMTImport(Document):
 			self.opening_balance = float(stmt.opening_balance)
 			self.closing_balance = float(stmt.closing_balance)
 
+			# Bankkonto automatisch anhand der IBAN setzen
+			if not self.bank_account and stmt.account_iban:
+				iban_normalized = stmt.account_iban.replace(" ", "").upper()
+				bank_account = frappe.db.get_value(
+					"Bank Account",
+					{"iban": iban_normalized},
+					"name",
+				)
+				if not bank_account:
+					# Auch mit Leerzeichen-Varianten suchen
+					bank_account = frappe.db.get_value(
+						"Bank Account",
+						{"iban": ["like", f"%{iban_normalized[-12:]}"]},
+						"name",
+					)
+				if bank_account:
+					self.bank_account = bank_account
+
 		# Transaktionen zählen
 		all_txns = camt_file.all_transactions
 		self.total_transactions = len(all_txns)

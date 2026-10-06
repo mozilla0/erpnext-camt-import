@@ -9,6 +9,58 @@ from frappe.utils import now_datetime, cint
 
 
 @frappe.whitelist()
+def preview_camt_file(file_url):
+	"""Liest eine hochgeladene CAMT-Datei und gibt IBAN, Kontoinhaber und
+	das passende ERPNext-Bankkonto zurück – noch vor dem Speichern.
+
+	Wird vom camt_file-Event im Formular aufgerufen.
+	"""
+	from bank_import_ch.bank_import_ch.camt_parser import parse_camt053
+
+	file_doc = frappe.get_doc("File", {"file_url": file_url})
+	file_content = file_doc.get_content()
+
+	if isinstance(file_content, bytes):
+		file_content = file_content.decode("utf-8")
+
+	camt_file = parse_camt053(file_content)
+
+	result = {
+		"account_iban": None,
+		"account_owner": None,
+		"account_currency": None,
+		"bank_account": None,
+	}
+
+	if not camt_file.statements:
+		return result
+
+	stmt = camt_file.statements[0]
+	result["account_iban"] = stmt.account_iban
+	result["account_owner"] = stmt.account_owner
+	result["account_currency"] = stmt.account_currency
+
+	# Bankkonto anhand IBAN suchen
+	if stmt.account_iban:
+		iban = stmt.account_iban.replace(" ", "").upper()
+		bank_account = frappe.db.get_value(
+			"Bank Account",
+			{"iban": iban},
+			"name",
+		)
+		if not bank_account:
+			# Fallback: letzte 12 Zeichen der IBAN matchen
+			bank_account = frappe.db.get_value(
+				"Bank Account",
+				{"iban": ["like", f"%{iban[-12:]}"]},
+				"name",
+			)
+		result["bank_account"] = bank_account
+
+	return result
+
+
+@frappe.whitelist()
 def confirm_transactions(transaction_names):
 	"""Mehrere Transaktionen auf einmal bestätigen."""
 	if isinstance(transaction_names, str):
