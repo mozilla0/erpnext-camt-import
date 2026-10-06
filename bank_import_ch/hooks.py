@@ -27,6 +27,7 @@ fixtures = [
 		"filters": [["name", "in", [
 			"Journal Entry-camt_bank_transaction",
 			"Payment Entry-camt_bank_transaction",
+			"Bank Account-camt_iban",
 		]]],
 	},
 ]

@@ -17,21 +17,34 @@ class CAMTImport(Document):
 			self.process_camt_file()
 
 	def validate(self):
-		"""Validierung: IBAN im CAMT-File muss zum gewählten Bankkonto passen."""
+		"""Validierung: IBAN im CAMT-File muss zum gewählten Bankkonto passen.
+
+		Prüft sowohl die Standard-IBAN als auch die CAMT-IBAN (Custom Field),
+		da z.B. bei ESR-Konten die IBAN für die QR-Rechnung von der IBAN im
+		Bankauszug abweichen kann.
+		"""
 		if self.bank_account and self.account_iban:
-			bank_iban = frappe.db.get_value("Bank Account", self.bank_account, "iban")
-			if bank_iban:
-				# Normalisieren: Leerzeichen entfernen und Grossbuchstaben
+			bank_doc = frappe.db.get_value(
+				"Bank Account", self.bank_account,
+				["iban", "camt_iban"], as_dict=True
+			)
+			if bank_doc:
 				iban_file = (self.account_iban or "").replace(" ", "").upper()
-				iban_bank = (bank_iban or "").replace(" ", "").upper()
+				iban_bank = (bank_doc.iban or "").replace(" ", "").upper()
+				iban_camt = (bank_doc.camt_iban or "").replace(" ", "").upper()
+
+				# Match wenn eine der beiden IBANs übereinstimmt
 				if iban_file and iban_bank and iban_file != iban_bank:
-					frappe.throw(
-						frappe._("Die IBAN in der CAMT-Datei ({0}) stimmt nicht mit dem "
-						"gewählten Bankkonto ({1}, IBAN: {2}) überein.").format(
-							iban_file, self.bank_account, iban_bank
-						),
-						title=frappe._("IBAN-Validierung fehlgeschlagen")
-					)
+					if not iban_camt or iban_file != iban_camt:
+						frappe.throw(
+							frappe._("Die IBAN in der CAMT-Datei ({0}) stimmt nicht mit dem "
+							"gewählten Bankkonto ({1}, IBAN: {2}) überein.<br><br>"
+							"Falls die CAMT-IBAN von der ESR-IBAN abweicht, trage die "
+							"CAMT-IBAN im Feld <b>«CAMT IBAN»</b> auf dem Bankkonto ein.").format(
+								iban_file, self.bank_account, iban_bank
+							),
+							title=frappe._("IBAN-Validierung fehlgeschlagen")
+						)
 
 	def process_camt_file(self):
 		"""CAMT.053-Datei lesen und verarbeiten."""
@@ -62,21 +75,7 @@ class CAMTImport(Document):
 
 			# Bankkonto automatisch anhand der IBAN setzen
 			if not self.bank_account and stmt.account_iban:
-				iban_normalized = stmt.account_iban.replace(" ", "").upper()
-				bank_account = frappe.db.get_value(
-					"Bank Account",
-					{"iban": iban_normalized},
-					"name",
-				)
-				if not bank_account:
-					# Auch mit Leerzeichen-Varianten suchen
-					bank_account = frappe.db.get_value(
-						"Bank Account",
-						{"iban": ["like", f"%{iban_normalized[-12:]}"]},
-						"name",
-					)
-				if bank_account:
-					self.bank_account = bank_account
+				self.bank_account = _find_bank_account_by_iban(stmt.account_iban)
 
 		# Transaktionen zählen
 		all_txns = camt_file.all_transactions
@@ -207,6 +206,37 @@ class CAMTImport(Document):
 			self.status = "Importiert"
 
 		self.save(ignore_permissions=True)
+
+
+def _find_bank_account_by_iban(iban):
+	"""Sucht ein ERPNext-Bankkonto anhand einer IBAN.
+
+	Prüft sowohl das Standard-IBAN-Feld als auch das Custom Field camt_iban,
+	da bei ESR-Konten die IBAN abweichen kann.
+	"""
+	if not iban:
+		return None
+
+	iban_normalized = iban.replace(" ", "").upper()
+
+	# 1. Exakte Suche auf Standard-IBAN
+	result = frappe.db.get_value("Bank Account", {"iban": iban_normalized}, "name")
+	if result:
+		return result
+
+	# 2. Suche auf CAMT-IBAN (Custom Field für abweichende IBANs)
+	result = frappe.db.get_value("Bank Account", {"camt_iban": iban_normalized}, "name")
+	if result:
+		return result
+
+	# 3. Fallback: letzte 12 Zeichen matchen (beide Felder)
+	suffix = iban_normalized[-12:]
+	result = frappe.db.get_value("Bank Account", {"iban": ["like", f"%{suffix}"]}, "name")
+	if result:
+		return result
+
+	result = frappe.db.get_value("Bank Account", {"camt_iban": ["like", f"%{suffix}"]}, "name")
+	return result
 
 
 @frappe.whitelist()

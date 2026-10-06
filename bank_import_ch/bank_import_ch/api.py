@@ -40,22 +40,10 @@ def preview_camt_file(file_url):
 	result["account_owner"] = stmt.account_owner
 	result["account_currency"] = stmt.account_currency
 
-	# Bankkonto anhand IBAN suchen
+	# Bankkonto anhand IBAN suchen (prüft iban + camt_iban)
 	if stmt.account_iban:
-		iban = stmt.account_iban.replace(" ", "").upper()
-		bank_account = frappe.db.get_value(
-			"Bank Account",
-			{"iban": iban},
-			"name",
-		)
-		if not bank_account:
-			# Fallback: letzte 12 Zeichen der IBAN matchen
-			bank_account = frappe.db.get_value(
-				"Bank Account",
-				{"iban": ["like", f"%{iban[-12:]}"]},
-				"name",
-			)
-		result["bank_account"] = bank_account
+		from bank_import_ch.bank_import_ch.doctype.camt_import.camt_import import _find_bank_account_by_iban
+		result["bank_account"] = _find_bank_account_by_iban(stmt.account_iban)
 
 	return result
 

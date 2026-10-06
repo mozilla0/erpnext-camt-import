@@ -15,6 +15,16 @@
 		"description": "Verknüpfung zur CAMT-Banktransaktion (automatisch gesetzt)"
 	},
 	{
+		"name": "Bank Account-camt_iban",
+		"dt": "Custom Field",
+		"doctype": "Custom Field",
+		"fieldname": "camt_iban",
+		"fieldtype": "Data",
+		"label": "CAMT IBAN",
+		"insert_after": "iban",
+		"description": "IBAN wie sie im CAMT-Bankauszug erscheint (nur nötig, falls abweichend von der IBAN oben, z.B. bei ESR-Konten)"
+	},
+	{
 		"name": "Payment Entry-camt_bank_transaction",
 		"dt": "Custom Field",
 		"doctype": "Custom Field",
