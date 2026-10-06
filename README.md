@@ -14,6 +14,23 @@ CAMT.053 Banktransaktions-Import für ERPNext v16 – optimiert für Schweizer B
 - Parst Gegenpartei-Details, IBAN, BIC, Adressen, QRR-Referenzen, Verwendungszweck
 - Duplikaterkennung via eindeutiger Transaktions-ID (IBAN + AcctSvcRef)
 - Feedback beim Import: Anzahl importierter vs. übersprungener Transaktionen
+- **Automatische Bankkonto-Erkennung**: Die IBAN aus der CAMT-Datei wird beim Upload gegen die ERPNext-Bankkonten abgeglichen und das Bankkonto automatisch vorbelegt
+- **IBAN-Validierung**: Verhindert den Import in ein falsches Bankkonto
+
+#### Bankkonten-Tabs
+- Übersichtsseite mit **Tabs pro Bankkonto** (z.B. Hauptkonto, Nebenkonto, EUR-Konto)
+- Jeder Tab zeigt ein Badge mit der Anzahl offener Transaktionen
+- Tab «Alle Konten» zeigt wie bisher alle Transaktionen
+
+#### CAMT IBAN (ESR-Konten)
+Bei manchen Schweizer Banken (z.B. Raiffeisen) weicht die IBAN im Bankauszug von der IBAN für QR-Rechnungen/ESR ab. Für diesen Fall gibt es auf dem **Bankkonto** ein zusätzliches Feld **«CAMT IBAN»**:
+
+| Feld | Verwendung | Beispiel |
+|------|-----------|----------|
+| **IBAN** | Für QR-Rechnungen / ESR-Generierung | `CH54 3080 8003 0929 6384 9` |
+| **CAMT IBAN** | IBAN wie sie im Bankauszug erscheint | `CH26 8080 8003 0929 6384 9` |
+
+Die automatische Erkennung und Validierung prüft beide Felder.
 
 #### Transaktionsverwaltung
 - Eigene Übersichtsseite unter `/app/bank-transactions-ch` mit Filtern, Suche und Massenaktionen
@@ -93,6 +110,23 @@ Getestet mit Raiffeisen (camt.053.001.08). Kompatibel mit allen Schweizer Banken
 - Parses counterparty details, IBAN, BIC, addresses, QRR references, remittance info
 - Duplicate detection via unique transaction ID (IBAN + AcctSvcRef)
 - Feedback on import: count of imported vs. skipped transactions
+- **Automatic bank account detection**: Matches IBAN from CAMT file against ERPNext Bank Accounts on upload
+- **IBAN validation**: Prevents importing into the wrong bank account
+
+#### Bank Account Tabs
+- Overview page with **tabs per bank account** (e.g. main account, secondary account, EUR account)
+- Each tab shows a badge with the number of open transactions
+- "All accounts" tab shows all transactions as before
+
+#### CAMT IBAN (ESR Accounts)
+Some Swiss banks (e.g. Raiffeisen) use a different IBAN in bank statements than the one used for QR invoices/ESR. For this case, there is an additional **"CAMT IBAN"** field on the Bank Account:
+
+| Field | Usage | Example |
+|-------|-------|---------|
+| **IBAN** | For QR invoices / ESR generation | `CH54 3080 8003 0929 6384 9` |
+| **CAMT IBAN** | IBAN as it appears in the bank statement | `CH26 8080 8003 0929 6384 9` |
+
+Auto-detection and validation check both fields.
 
 #### Transaction Management
 - Custom page at `/app/bank-transactions-ch` with filtering, search and bulk actions
@@ -173,6 +207,7 @@ Tested with Raiffeisen (camt.053.001.08). Compatible with any Swiss bank that pr
 
 | DocType | Feld / Field | Zweck / Purpose |
 |---------|-------------|-----------------|
+| Bank Account | `camt_iban` | Alternative IBAN für CAMT-Abgleich (z.B. bei ESR-Konten) / Alternative IBAN for CAMT matching (e.g. ESR accounts) |
 | Payment Entry | `camt_bank_transaction` | Verknüpfung zur CAMT-Transaktion / Link back to CAMT transaction |
 | Journal Entry | `camt_bank_transaction` | Verknüpfung zur CAMT-Transaktion / Link back to CAMT transaction |
 

@@ -24,9 +24,12 @@ class CAMTImport(Document):
 		Bankauszug abweichen kann.
 		"""
 		if self.bank_account and self.account_iban:
+			fields = ["iban"]
+			if frappe.db.has_column("Bank Account", "camt_iban"):
+				fields.append("camt_iban")
 			bank_doc = frappe.db.get_value(
 				"Bank Account", self.bank_account,
-				["iban", "camt_iban"], as_dict=True
+				fields, as_dict=True
 			)
 			if bank_doc:
 				iban_file = (self.account_iban or "").replace(" ", "").upper()
@@ -225,18 +228,25 @@ def _find_bank_account_by_iban(iban):
 		return result
 
 	# 2. Suche auf CAMT-IBAN (Custom Field für abweichende IBANs)
-	result = frappe.db.get_value("Bank Account", {"camt_iban": iban_normalized}, "name")
-	if result:
-		return result
+	# Feld existiert erst nach bench migrate – graceful fallback
+	has_camt_iban = frappe.db.has_column("Bank Account", "camt_iban")
+	if has_camt_iban:
+		result = frappe.db.get_value("Bank Account", {"camt_iban": iban_normalized}, "name")
+		if result:
+			return result
 
-	# 3. Fallback: letzte 12 Zeichen matchen (beide Felder)
+	# 3. Fallback: letzte 12 Zeichen matchen
 	suffix = iban_normalized[-12:]
 	result = frappe.db.get_value("Bank Account", {"iban": ["like", f"%{suffix}"]}, "name")
 	if result:
 		return result
 
-	result = frappe.db.get_value("Bank Account", {"camt_iban": ["like", f"%{suffix}"]}, "name")
-	return result
+	if has_camt_iban:
+		result = frappe.db.get_value("Bank Account", {"camt_iban": ["like", f"%{suffix}"]}, "name")
+		if result:
+			return result
+
+	return None
 
 
 @frappe.whitelist()

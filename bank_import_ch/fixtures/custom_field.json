@@ -1,0 +1,42 @@
+[
+	{
+		"name": "Journal Entry-camt_bank_transaction",
+		"dt": "Custom Field",
+		"doctype": "Custom Field",
+		"fieldname": "camt_bank_transaction",
+		"fieldtype": "Link",
+		"label": "CAMT Bank Transaction",
+		"options": "CAMT Bank Transaction",
+		"insert_after": "cheque_date",
+		"read_only": 1,
+		"no_copy": 1,
+		"print_hide": 1,
+		"hidden": 0,
+		"description": "Verknüpfung zur CAMT-Banktransaktion (automatisch gesetzt)"
+	},
+	{
+		"name": "Bank Account-camt_iban",
+		"dt": "Custom Field",
+		"doctype": "Custom Field",
+		"fieldname": "camt_iban",
+		"fieldtype": "Data",
+		"label": "CAMT IBAN",
+		"insert_after": "iban",
+		"description": "IBAN wie sie im CAMT-Bankauszug erscheint (nur nötig, falls abweichend von der IBAN oben, z.B. bei ESR-Konten)"
+	},
+	{
+		"name": "Payment Entry-camt_bank_transaction",
+		"dt": "Custom Field",
+		"doctype": "Custom Field",
+		"fieldname": "camt_bank_transaction",
+		"fieldtype": "Link",
+		"label": "CAMT Bank Transaction",
+		"options": "CAMT Bank Transaction",
+		"insert_after": "reference_date",
+		"read_only": 1,
+		"no_copy": 1,
+		"print_hide": 1,
+		"hidden": 0,
+		"description": "Verknüpfung zur CAMT-Banktransaktion (automatisch gesetzt)"
+	}
+]
